@@ -1,3 +1,13 @@
 textarea {
     min-height: 400px;
 }
+
+.email-div {
+    border: 1px solid black;
+    padding: 8px;
+}
+
+.email-div button {
+    float: right;
+    margin-right: 13px;
+}
