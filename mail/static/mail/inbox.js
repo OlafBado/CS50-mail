@@ -47,8 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
 
   // Show compose view and hide other views
+  document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -86,7 +88,7 @@ function load_mailbox(mailbox) {
         const read = email.read;
         const body = email.body;
 
-        // create div for each email, add styl and event handler
+        // create div for each email, add style and event handler
         const element = document.createElement('div');
         element.classList.add("email-div");
         element.innerHTML = 
@@ -106,23 +108,42 @@ function load_mailbox(mailbox) {
           fetch(`/emails/${id}`)
           .then(response => response.json())
           .then(email => {
-          
+            
+
             box = document.createElement('div');
+            box.classList.add("read-email");
             box.innerHTML = 
               `<b>From:</b> ${who}<br>` +
               `<b>To:</b> ${to_whom}<br>` +
               `<b>Subject:</b> ${theme}<br>` +
               `<b>Timestamp:</b> ${time}<br>` +
-              '<button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>' +
-              '<hr>' +
+              '<hr>'+
               `${body}`;
               document.querySelector('#email-view').append(box);
+
+            // button to reply to email
+            const button = document.createElement('button');
+            button.innerHTML = '<b>Reply</b>';
+            button.addEventListener('click', function() {
+              compose_email()
+              document.querySelector('#compose-recipients').value = who;
+              if (!theme.includes('Re:')) {
+              document.querySelector('#compose-subject').value = `Re: ${theme}`;
+            } else if (theme.includes('Re:')) {
+              document.querySelector('#compose-subject').value = `${theme}`;
+            }
+              document.querySelector('#compose-body').value = `On ${time} ${who} wrote: ${body}`;
+            })
+            box.insertBefore(button, box.children[8]);
+
           });
          document.querySelector('#emails-view').style.display = 'none';
          document.querySelector('#email-view').style.display = 'block';
+
          });
         document.querySelector('#emails-view').append(element);
         
+
         // change background for read emails
         if (read === true) {
           element.style.backgroundColor = 'gray';
@@ -141,6 +162,7 @@ function load_mailbox(mailbox) {
               }),
             });
             load_mailbox('inbox');
+            window.location.reload();
           })
           element.appendChild(button);
         }
@@ -157,9 +179,13 @@ function load_mailbox(mailbox) {
               }),
             });
             load_mailbox('inbox');
+            window.location.reload();
           })
           element.appendChild(button);
       }
+
+      
+
     }
    )
  })
